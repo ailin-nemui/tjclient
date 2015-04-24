@@ -2,13 +2,17 @@
   <head>
     <title>Test Client</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/core-min.js"></script>
+    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/sha256-min.js"></script>
+    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/hmac-min.js"></script>
+    <script src="//crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
     <script src="lib/util.js"></script>
     <script src="lib/handler.js"></script>
     <script src="lib/parse_color.js"></script>
     <script src="lib/view.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" type="text/css" href="css/theme.default.css" />
     <style>
       .container {
@@ -35,7 +39,7 @@
         $('#discodiv').show('fast')
         
         var loc = window.location.protocol.replace(/^http/i, 'ws')
-        loc += '//' + window.location.hostname + ':' + window.location.port;
+        loc += '//' + window.location.hostname + ':' + window.location.port + '/teddy';
         var ws = new WebSocket(loc)
         var view = new View()
         var handler = new Handler(ws, view);
@@ -72,10 +76,19 @@
 
         ws.onmessage = function(msg) {
           var m = $.parseJSON(msg.data);
-          if (handler[m.event]) {
-            handler[m.event](m);
+          if (m.id !== undefined) {
+            handler[m.id](m);
           } else {
-            handler.unhandled(m);
+          var k;
+          for (k in m) {
+          if (handler[k]) {
+            handler[k](m[k]);
+          } else {
+            var l = {};
+            l[k]=m[k];
+            handler.unhandled(l);
+          }
+          }
           }
         }
 
